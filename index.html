@@ -1,63 +1,109 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar" id="mainHtml">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Payroll</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0047ba">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Smart Payroll">
-    <link rel="apple-touch-icon" href="https://drive.google.com/uc?export=view&id=1sv6OYpVrfH1vLYdHR4s6TakGX-MfSTqE">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Edrak Professional Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #0047ba; font-family: sans-serif; }
-        #splash {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
-            background-color: #0047ba;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
+        :root {
+           --edrak-blue: #1A3668;
+           --edrak-orange: #F37021;
+           --soft-bg: #F0F4F8;
         }
-        #splash img { width: 80%; max-width: 300px; height: auto; border-radius: 20px; }
-        iframe { border: none; width: 100%; height: 100%; display: none; }
+        body {
+           background-color: var(--soft-bg);
+           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+           margin: 0; padding: 0;
+           height: 100vh;
+           display: flex;
+           flex-direction: column;
+        }
+
+        /* حاوية الصورة العلوية الثابتة */
+        .header-banner {
+            background: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        .header-banner img {
+            width: 120px; /* يمكنك التحكم في حجم الصورة من هنا */
+            height: auto;
+            border-radius: 15px;
+        }
+
+        /* حاوية النظام */
+        .system-container {
+            flex-grow: 1;
+            position: relative;
+            background: white;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* لودر التحميل */
+        #globalLoader {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1200;
+        }
+        .loader-visual {
+            width: 50px; height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--edrak-orange);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="splash">
-        <img src="https://drive.google.com/uc?export=view&id=1sv6OYpVrfH1vLYdHR4s6TakGX-MfSTqE" alt="Smart Payroll Logo">
+<div class="header-banner">
+    <img src="https://up6.cc/do.php?img=171086433611311" id="mainLogo" alt="Smart Payroll Logo">
+</div>
+
+<div class="system-container">
+    <div id="globalLoader">
+        <div class="loader-visual"></div>
+        <h5 class="mt-3 fw-bold" style="color: var(--edrak-blue);">جاري تحميل النظام...</h5>
     </div>
+    
+    <iframe 
+        id="appIframe" 
+        src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec?authuser=0" 
+        allow="geolocation">
+    </iframe>
+</div>
 
-    <iframe id="appFrame" src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec"></iframe>
+<script>
+    const iframe = document.getElementById('appIframe');
+    const loader = document.getElementById('globalLoader');
 
-    <script>
-        window.onload = () => {
-            const splash = document.getElementById('splash');
-            const frame = document.getElementById('appFrame');
-            
-            setTimeout(() => {
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    frame.style.display = 'block';
-                }, 500);
-            }, 3000); // 3 ثوانٍ
-        };
+    // إخفاء شاشة التحميل عند اكتمال تحميل الرابط
+    iframe.onload = () => {
+        loader.style.display = 'none';
+    };
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("Service Worker Registered"));
+    // معالجة خطأ التحميل إذا طال الوقت
+    setTimeout(() => {
+        if (loader.style.display !== 'none') {
+            loader.innerHTML = '<p class="text-danger">تأخر التحميل، يرجى التحقق من الاتصال بالإنترنت</p>';
         }
-    </script>
+    }, 15000);
+</script>
+
 </body>
 </html>
