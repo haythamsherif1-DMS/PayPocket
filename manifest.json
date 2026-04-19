@@ -1,15 +1,17 @@
 {
   "name": "Smart Payroll",
   "short_name": "Payroll",
+  "description": "نظام إدارة الرواتب الذكي",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0047ba",
   "theme_color": "#0047ba",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "512.jpg",
+      "src": "https://drive.google.com/uc?export=view&id=1sv6OYpVrfH1vLYdHR4s6TakGX-MfSTqE",
       "sizes": "512x512",
-      "type": "image/jpg",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
