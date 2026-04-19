@@ -1,0 +1,16 @@
+{
+  "name": "Smart Payroll",
+  "short_name": "Payroll",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0047ba",
+  "theme_color": "#0047ba",
+  "icons": [
+    {
+      "src": "512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpg",
+      "purpose": "any maskable"
+    }
+  ]
+}

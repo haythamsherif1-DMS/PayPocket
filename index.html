@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Payroll</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icon.png" type="image/png">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #0047ba; }
+        #splash {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            transition: opacity 0.5s ease;
+        }
+        #splash img { width: 100%; max-width: 512px; height: auto; }
+        iframe { border: none; width: 100%; height: 100%; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="splash">
+        <img src="512.jpg" alt="Smart Payroll Logo">
+    </div>
+
+    <iframe id="appFrame" src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec"></iframe>
+
+    <script>
+        // إخفاء الشاشة الافتتاحية بعد 3 ثوانٍ وعرض التطبيق
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('appFrame').style.display = 'block';
+            }, 3000);
+        };
+
+        // تسجيل الـ Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
