@@ -1,8 +1,9 @@
-const cacheName = 'smart-payroll-v1';
+const cacheName = 'PayPocket-v2';
 const assets = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon-512.png' // أضف المسار هنا ليتم تخزينه كاش
 ];
 
 self.addEventListener('install', e => {
