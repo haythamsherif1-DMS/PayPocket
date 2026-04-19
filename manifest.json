@@ -1,18 +1,17 @@
 {
-  "name": "Smart Payroll",
-  "short_name": "Payroll",
+  "name": "PayPocket",
+  "short_name": "PayPocket",
   "description": "نظام إدارة الرواتب الذكي",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0047ba",
   "theme_color": "#0047ba",
   "orientation": "portrait",
-  "icons": [
-    {
-      "src": "https://drive.google.com/uc?export=view&id=1sv6OYpVrfH1vLYdHR4s6TakGX-MfSTqE",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
-}
+  ""icons": [
+  {
+    "src": "512.png", 
+    "sizes": "512x512",
+    "type": "image/png",
+    "purpose": "any maskable"
+  }
+]
