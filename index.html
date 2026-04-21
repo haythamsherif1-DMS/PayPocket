@@ -16,13 +16,12 @@
 
     <style>
         :root {
-            /* 🖼️ مقاس الشعار في شاشة التحميل */
             --logo-size: 100px;
-
-            /* ⚙️ ارتفاع شريط Google اللي هنخفيه - غيّره لو الشريط لسه ظاهر */
-            --hide-google-bar: 50px;
+            /* تم ضبط الإزاحة لتناسب شريط جوجل الافتراضي */
+            --hide-google-bar: 65px; 
         }
 
+        /* تصفير الهوامش ومنع التمرير في الصفحة الخارجية */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         html, body {
@@ -30,6 +29,7 @@
             height: 100%;
             overflow: hidden;
             background-color: #ffffff;
+            position: fixed; /* يمنع اهتزاز الصفحة في iOS */
         }
 
         /* شاشة التحميل */
@@ -46,9 +46,9 @@
         #loader img {
             width: var(--logo-size);
             height: var(--logo-size);
-            border-radius: 18px;
+            border-radius: 22px;
             margin-bottom: 18px;
-            box-shadow: 0 8px 20px rgba(1, 68, 156, 0.15);
+            box-shadow: 0 10px 25px rgba(1, 68, 156, 0.2);
         }
         .loading-text {
             font-size: 18px;
@@ -58,48 +58,56 @@
             animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
-            0%   { opacity: 0.5; }
-            50%  { opacity: 1; }
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
             100% { opacity: 0.5; }
         }
 
-        /* ✨ الحاوية اللي بتخفي شريط Google */
+        /* الحاوية الأساسية */
         .frame-wrapper {
-            position: fixed;
-            inset: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             overflow: hidden;
-            background: #01449c;
+            background: #f4f7f9; /* لون خلفية محايد أثناء التحميل */
         }
 
-        /* ✨ إزاحة الـ iframe لأعلى عشان يختفي شريط Google */
+        /* ضبط الـ iframe ليملأ الشاشة ويخفي شريط Google */
         iframe {
             position: absolute;
-            top: calc(var(--hide-google-bar) * -1);
+            /* إزاحة للأعلى لإخفاء شريط script.google */
+            top: calc(var(--hide-google-bar) * -1); 
             left: 0;
             width: 100%;
-            height: calc(100% + var(--hide-google-bar));
+            /* زيادة الطول لتعويض الإزاحة */
+            height: calc(100% + var(--hide-google-bar)); 
             border: none;
-            visibility: hidden;
+            display: block;
         }
 
-        /* زر التثبيت */
+        /* زر التثبيت بتصميم عصري */
         #installArea {
             display: none;
             position: fixed;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10000;
+            width: 80%;
+            max-width: 300px;
         }
         #installBtn {
+            width: 100%;
             background-color: #01449c;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 30px;
+            padding: 15px;
+            border-radius: 12px;
             font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+            font-size: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
             cursor: pointer;
         }
 
@@ -111,58 +119,61 @@
             width: 100%;
             background: #F37021;
             color: white;
-            padding: 10px;
+            padding: 12px;
             text-align: center;
             font-weight: bold;
-            cursor: pointer;
             z-index: 10001;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
 
-    <!-- شاشة التحميل -->
     <div id="loader">
         <img src="icon.png" alt="Smart Payroll">
-        <div class="loading-text">جاري التحميل...</div>
+        <div class="loading-text">جاري تحضير النظام...</div>
     </div>
 
-    <!-- شريط التحديث -->
     <div id="updateBanner" onclick="applyUpdate()">
         🔄 يوجد تحديث جديد - اضغط للتحديث
     </div>
 
-    <!-- زر التثبيت -->
     <div id="installArea">
         <button id="installBtn">📲 تثبيت التطبيق على الهاتف</button>
     </div>
 
-    <!-- النظام - بملء الشاشة مع إخفاء شريط Google -->
     <div class="frame-wrapper">
         <iframe
             id="payrollFrame"
             src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec"
+            allow="geolocation; microphone; camera" 
             onload="showApp()">
         </iframe>
     </div>
 
     <script>
+        // دالة إظهار التطبيق بعد تحميل الإطار
         function showApp() {
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('payrollFrame').style.visibility = 'visible';
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loader').style.display = 'none';
+                }, 500);
+            }, 1000);
         }
 
-        // تسجيل Service Worker
+        // تسجيل الـ Service Worker (لجعل التطبيق يعمل كـ PWA)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then((reg) => {
-                console.log('✅ Service Worker Registered');
-                reg.addEventListener('updatefound', () => {
-                    const nw = reg.installing;
-                    nw.addEventListener('statechange', () => {
-                        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-                            document.getElementById('updateBanner').style.display = 'block';
-                            window._newWorker = nw;
-                        }
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then((reg) => {
+                    reg.addEventListener('updatefound', () => {
+                        const nw = reg.installing;
+                        nw.addEventListener('statechange', () => {
+                            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                                document.getElementById('updateBanner').style.display = 'block';
+                                window._newWorker = nw;
+                            }
+                        });
                     });
                 });
             });
@@ -180,12 +191,11 @@
             else location.reload();
         }
 
-        // زر التثبيت (Android / Chrome)
+        // منطق زر التثبيت
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // نظهر الزر بس لو مش مثبّت
             if (!window.matchMedia('(display-mode: standalone)').matches) {
                 document.getElementById('installArea').style.display = 'block';
             }
@@ -199,22 +209,16 @@
             deferredPrompt = null;
         });
 
-        window.addEventListener('appinstalled', () => {
-            document.getElementById('installArea').style.display = 'none';
-        });
-
-        // iOS Safari - دعم التثبيت
+        // دعم الـ iOS الخاص بـ Safari
         const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-        const isStandalone = ('standalone' in navigator) && navigator.standalone;
+        const isStandalone = ('standalone' in window.navigator) && window.navigator.standalone;
         if (isIos && !isStandalone) {
             const area = document.getElementById('installArea');
             const btn = document.getElementById('installBtn');
             area.style.display = 'block';
-            btn.innerHTML = '📲 اضغط ⬆️ ثم "Add to Home Screen"';
+            btn.innerHTML = '📲 اضغط على زر المشاركة ⬆️ ثم "Add to Home Screen"';
             btn.style.fontSize = '12px';
-            setTimeout(() => area.style.display = 'none', 10000);
         }
     </script>
-
 </body>
 </html>
