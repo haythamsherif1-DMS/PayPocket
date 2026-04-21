@@ -3,54 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edrak Professional Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Smart Payroll</title>
+
+    <!-- PWA Meta -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#01449c">
-     <link rel="apple-touch-icon" href="icon.png">
-     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Smart Payroll">
+    <link rel="icon" type="image/png" sizes="192x192" href="192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="512.png">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
-           --edrak-blue: #1A3668;
-           --edrak-orange: #F37021;
-           --soft-bg: #F0F4F8;
-        }
-        body {
-           background-color: var(--soft-bg);
-           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-           margin: 0; padding: 0;
-           height: 100vh;
-           display: flex;
-           flex-direction: column;
+            --edrak-blue: #01449c;
+            --edrak-orange: #F37021;
+            --soft-bg: #F0F4F8;
+
+            /* ========================================== */
+            /*  🖼️ تحكم في مقاس الصورة العلوية من هنا   */
+            /*     Control the header logo size here     */
+            /* ========================================== */
+            --logo-size: 90px;      /* عرض الصورة */
+            --banner-padding: 10px; /* المساحة حوالين الصورة */
+            /* ========================================== */
         }
 
-        /* حاوية الصورة العلوية الثابتة */
+        * { box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--soft-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* حاوية الصورة العلوية */
         .header-banner {
             background: white;
-            padding: 15px;
+            padding: var(--banner-padding);
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             z-index: 1000;
-        }
-        .header-banner img {
-            width: 120px; /* يمكنك التحكم في حجم الصورة من هنا */
-            height: auto;
-            border-radius: 15px;
+            flex-shrink: 0;
         }
 
-        /* حاوية النظام */
+        .header-banner img {
+            width: var(--logo-size);
+            height: var(--logo-size);
+            object-fit: contain;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        /* منطقة زر التثبيت */
+        #installArea {
+            display: none;
+            background: #fff;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        #installBtn {
+            background-color: var(--edrak-blue);
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #installBtn:hover { opacity: 0.9; }
+
+        /* حاوية النظام (iframe) */
         .system-container {
             flex-grow: 1;
             position: relative;
             background: white;
+            overflow: hidden;
         }
 
         iframe {
             width: 100%;
             height: 100%;
             border: none;
+            display: block;
         }
 
         /* لودر التحميل */
@@ -71,71 +123,151 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* تنبيه التحديث */
+        #updateBanner {
+            display: none;
+            background: var(--edrak-orange);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
 
-<div class="header-banner">
-    <img src="https://up6.cc/do.php?img=171086433611311" id="mainLogo" alt="Smart Payroll Logo">
+<!-- شريط التنبيه بوجود تحديث -->
+<div id="updateBanner" onclick="applyUpdate()">
+    🔄 يوجد تحديث جديد - اضغط هنا للتحديث
 </div>
 
+<!-- الشعار العلوي -->
+<div class="header-banner">
+    <img src="icon.png" id="mainLogo" alt="Smart Payroll">
+</div>
+
+<!-- زر التثبيت -->
+<div id="installArea">
+    <button id="installBtn">📲 تثبيت تطبيق Smart Payroll على الهاتف</button>
+</div>
+
+<!-- النظام -->
 <div class="system-container">
     <div id="globalLoader">
         <div class="loader-visual"></div>
         <h5 class="mt-3 fw-bold" style="color: var(--edrak-blue);">جاري تحميل النظام...</h5>
     </div>
-    
-    <iframe 
-        id="appIframe" 
-        src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec?authuser=0" 
+
+    <iframe
+        id="appIframe"
+        src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec?authuser=0"
         allow="geolocation">
     </iframe>
 </div>
 
 <script>
+    /* ===========================================================
+       1) تسجيل الـ Service Worker (ضروري لظهور زر التثبيت)
+       =========================================================== */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then((reg) => {
+                    console.log('✅ Service Worker مسجل بنجاح');
+
+                    // التحقق من وجود تحديث
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                document.getElementById('updateBanner').style.display = 'block';
+                                window._newWorker = newWorker;
+                            }
+                        });
+                    });
+                })
+                .catch((err) => console.error('❌ فشل تسجيل Service Worker:', err));
+        });
+
+        // إعادة تحميل الصفحة بعد تفعيل الإصدار الجديد
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+        });
+    }
+
+    function applyUpdate() {
+        if (window._newWorker) {
+            window._newWorker.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+            window.location.reload();
+        }
+    }
+
+    /* ===========================================================
+       2) لودر الـ iframe
+       =========================================================== */
     const iframe = document.getElementById('appIframe');
     const loader = document.getElementById('globalLoader');
 
-    // إخفاء شاشة التحميل عند اكتمال تحميل الرابط
-    iframe.onload = () => {
-        loader.style.display = 'none';
-    };
+    iframe.onload = () => { loader.style.display = 'none'; };
 
-    // معالجة خطأ التحميل إذا طال الوقت
     setTimeout(() => {
         if (loader.style.display !== 'none') {
             loader.innerHTML = '<p class="text-danger">تأخر التحميل، يرجى التحقق من الاتصال بالإنترنت</p>';
         }
     }, 15000);
-</script>
-<div id="installArea" style="display:none; background: #fff; padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">
-    <button id="installBtn" class="btn btn-primary" style="background-color: #01449c;">تثبيت تطبيق Smart Payroll على الهاتف</button>
-</div>
 
-<script>
+    /* ===========================================================
+       3) زر تثبيت التطبيق (Android / Chrome / Edge)
+       =========================================================== */
     let deferredPrompt;
     const installArea = document.getElementById('installArea');
     const installBtn = document.getElementById('installBtn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
-        // منع المتصفح من إظهار الرسالة التلقائية فوراً
         e.preventDefault();
         deferredPrompt = e;
-        // إظهار الزر الخاص بنا
         installArea.style.display = 'block';
     });
 
-    installBtn.addEventListener('click', (e) => {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
         installArea.style.display = 'none';
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            }
-            deferredPrompt = null;
-        });
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('نتيجة التثبيت:', outcome);
+        deferredPrompt = null;
     });
+
+    // إخفاء الزر بعد التثبيت
+    window.addEventListener('appinstalled', () => {
+        installArea.style.display = 'none';
+        deferredPrompt = null;
+    });
+
+    /* ===========================================================
+       4) دعم iOS Safari (مش بيدعم beforeinstallprompt)
+       =========================================================== */
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isInStandaloneMode = ('standalone' in navigator) && navigator.standalone;
+
+    if (isIos && !isInStandaloneMode) {
+        installArea.style.display = 'block';
+        installBtn.innerHTML = '📲 للتثبيت: اضغط زر المشاركة ثم "Add to Home Screen"';
+        installBtn.style.fontSize = '13px';
+        installBtn.onclick = () => installArea.style.display = 'none';
+    }
 </script>
+
 </body>
 </html>
