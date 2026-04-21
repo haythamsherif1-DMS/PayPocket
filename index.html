@@ -2,26 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Smart Payroll</title>
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#01449c">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Smart Payroll">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="192.png">
 
     <style>
         :root {
-            /* 🖼️ تحكم في مقاس الشعار */
-            --logo-size: 80px;
+            /* 🖼️ مقاس الشعار في شاشة التحميل */
+            --logo-size: 100px;
+
+            /* ⚙️ ارتفاع شريط Google اللي هنخفيه - غيّره لو الشريط لسه ظاهر */
+            --hide-google-bar: 50px;
         }
 
-        body, html {
-            margin: 0;
-            padding: 0;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
             height: 100%;
             overflow: hidden;
             background-color: #ffffff;
@@ -30,8 +35,7 @@
         /* شاشة التحميل */
         #loader {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            inset: 0;
             background-color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -42,11 +46,12 @@
         #loader img {
             width: var(--logo-size);
             height: var(--logo-size);
-            border-radius: 15px;
-            margin-bottom: 15px;
+            border-radius: 18px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 20px rgba(1, 68, 156, 0.15);
         }
         .loading-text {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #01449c;
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -58,10 +63,21 @@
             100% { opacity: 0.5; }
         }
 
+        /* ✨ الحاوية اللي بتخفي شريط Google */
+        .frame-wrapper {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: #01449c;
+        }
+
+        /* ✨ إزاحة الـ iframe لأعلى عشان يختفي شريط Google */
         iframe {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: calc(var(--hide-google-bar) * -1);
+            left: 0;
+            width: 100%;
+            height: calc(100% + var(--hide-google-bar));
             border: none;
             visibility: hidden;
         }
@@ -70,7 +86,7 @@
         #installArea {
             display: none;
             position: fixed;
-            bottom: 15px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10000;
@@ -79,10 +95,11 @@
             background-color: #01449c;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 12px 24px;
+            border-radius: 30px;
             font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 14px;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
             cursor: pointer;
         }
 
@@ -120,12 +137,14 @@
         <button id="installBtn">📲 تثبيت التطبيق على الهاتف</button>
     </div>
 
-    <!-- النظام - نفس تركيبة ملف المنيو بالظبط -->
-    <iframe
-        id="payrollFrame"
-        src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec"
-        onload="showApp()">
-    </iframe>
+    <!-- النظام - بملء الشاشة مع إخفاء شريط Google -->
+    <div class="frame-wrapper">
+        <iframe
+            id="payrollFrame"
+            src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec"
+            onload="showApp()">
+        </iframe>
+    </div>
 
     <script>
         function showApp() {
@@ -166,7 +185,10 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('installArea').style.display = 'block';
+            // نظهر الزر بس لو مش مثبّت
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                document.getElementById('installArea').style.display = 'block';
+            }
         });
 
         document.getElementById('installBtn').addEventListener('click', async () => {
@@ -181,7 +203,7 @@
             document.getElementById('installArea').style.display = 'none';
         });
 
-        // iOS Safari
+        // iOS Safari - دعم التثبيت
         const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
         const isStandalone = ('standalone' in navigator) && navigator.standalone;
         if (isIos && !isStandalone) {
@@ -190,7 +212,7 @@
             area.style.display = 'block';
             btn.innerHTML = '📲 اضغط ⬆️ ثم "Add to Home Screen"';
             btn.style.fontSize = '12px';
-            btn.onclick = () => area.style.display = 'none';
+            setTimeout(() => area.style.display = 'none', 10000);
         }
     </script>
 
