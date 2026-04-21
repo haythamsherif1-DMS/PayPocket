@@ -2,7 +2,7 @@
 //  ⚡ عند أي تعديل في الملفات، قم بتغيير رقم الإصدار فقط من هنا ⚡
 //  Change APP_VERSION below whenever you update any file
 // ===================================================================
-const APP_VERSION = '1.0.2';
+const APP_VERSION = '1.0.3';
 // ===================================================================
 
 const CACHE_NAME = `smart-payroll-cache-${APP_VERSION}`;
