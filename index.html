@@ -1,273 +1,198 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar" id="mainHtml">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Smart Payroll</title>
 
-    <!-- PWA Meta -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#01449c">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Smart Payroll">
-    <link rel="icon" type="image/png" sizes="192x192" href="192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="512.png">
     <link rel="apple-touch-icon" href="icon.png">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="192.png">
 
     <style>
         :root {
-            --edrak-blue: #01449c;
-            --edrak-orange: #F37021;
-            --soft-bg: #F0F4F8;
-
-            /* ========================================== */
-            /*  🖼️ تحكم في مقاس الصورة العلوية من هنا   */
-            /*     Control the header logo size here     */
-            /* ========================================== */
-            --logo-size: 90px;      /* عرض الصورة */
-            --banner-padding: 10px; /* المساحة حوالين الصورة */
-            /* ========================================== */
+            /* 🖼️ تحكم في مقاس الشعار */
+            --logo-size: 80px;
         }
 
-        * { box-sizing: border-box; }
-
-        html, body {
-            height: 100%;
+        body, html {
             margin: 0;
             padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background-color: #ffffff;
         }
 
-        body {
-            background-color: var(--soft-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* شاشة التحميل */
+        #loader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
-
-        /* حاوية الصورة العلوية */
-        .header-banner {
-            background: white;
-            padding: var(--banner-padding);
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            z-index: 1000;
-            flex-shrink: 0;
-        }
-
-        .header-banner img {
+        #loader img {
             width: var(--logo-size);
             height: var(--logo-size);
-            object-fit: contain;
             border-radius: 15px;
-            display: inline-block;
+            margin-bottom: 15px;
         }
-
-        /* منطقة زر التثبيت */
-        #installArea {
-            display: none;
-            background: #fff;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        #installBtn {
-            background-color: var(--edrak-blue);
-            border: none;
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
+        .loading-text {
+            font-size: 20px;
             font-weight: bold;
-            cursor: pointer;
+            color: #01449c;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            animation: pulse 1.5s infinite;
         }
-
-        #installBtn:hover { opacity: 0.9; }
-
-        /* حاوية النظام (iframe) */
-        .system-container {
-            flex-grow: 1;
-            position: relative;
-            background: white;
-            overflow: hidden;
+        @keyframes pulse {
+            0%   { opacity: 0.5; }
+            50%  { opacity: 1; }
+            100% { opacity: 0.5; }
         }
 
         iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        /* لودر التحميل */
-        #globalLoader {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1200;
-        }
-        .loader-visual {
-            width: 50px; height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--edrak-orange);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+            visibility: hidden;
         }
 
-        /* تنبيه التحديث */
+        /* زر التثبيت */
+        #installArea {
+            display: none;
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+        }
+        #installBtn {
+            background-color: #01449c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        /* شريط التحديث */
         #updateBanner {
             display: none;
-            background: var(--edrak-orange);
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            background: #F37021;
             color: white;
             padding: 10px;
             text-align: center;
             font-weight: bold;
             cursor: pointer;
-            flex-shrink: 0;
+            z-index: 10001;
         }
     </style>
 </head>
 <body>
 
-<!-- شريط التنبيه بوجود تحديث -->
-<div id="updateBanner" onclick="applyUpdate()">
-    🔄 يوجد تحديث جديد - اضغط هنا للتحديث
-</div>
-
-<!-- الشعار العلوي -->
-<div class="header-banner">
-    <img src="icon.png" id="mainLogo" alt="Smart Payroll">
-</div>
-
-<!-- زر التثبيت -->
-<div id="installArea">
-    <button id="installBtn">📲 تثبيت تطبيق Smart Payroll على الهاتف</button>
-</div>
-
-<!-- النظام -->
-<div class="system-container">
-    <div id="globalLoader">
-        <div class="loader-visual"></div>
-        <h5 class="mt-3 fw-bold" style="color: var(--edrak-blue);">جاري تحميل النظام...</h5>
+    <!-- شاشة التحميل -->
+    <div id="loader">
+        <img src="icon.png" alt="Smart Payroll">
+        <div class="loading-text">جاري التحميل...</div>
     </div>
 
+    <!-- شريط التحديث -->
+    <div id="updateBanner" onclick="applyUpdate()">
+        🔄 يوجد تحديث جديد - اضغط للتحديث
+    </div>
+
+    <!-- زر التثبيت -->
+    <div id="installArea">
+        <button id="installBtn">📲 تثبيت التطبيق على الهاتف</button>
+    </div>
+
+    <!-- النظام - نفس تركيبة ملف المنيو بالظبط -->
     <iframe
-        id="appIframe"
+        id="payrollFrame"
         src="https://script.google.com/macros/s/AKfycbzZiRMzKEjXlZSpIBPOoXJjHaGK70ZAq1vy0h90ExIKhEGKRgDn2QXxAVNjcPr6Yp1s/exec"
-        allow="geolocation">
+        onload="showApp()">
     </iframe>
-</div>
 
-<script>
-    /* ===========================================================
-       1) تسجيل الـ Service Worker (ضروري لظهور زر التثبيت)
-       =========================================================== */
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then((reg) => {
-                    console.log('✅ Service Worker مسجل بنجاح');
+    <script>
+        function showApp() {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('payrollFrame').style.visibility = 'visible';
+        }
 
-                    // التحقق من وجود تحديث
-                    reg.addEventListener('updatefound', () => {
-                        const newWorker = reg.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                document.getElementById('updateBanner').style.display = 'block';
-                                window._newWorker = newWorker;
-                            }
-                        });
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then((reg) => {
+                console.log('✅ Service Worker Registered');
+                reg.addEventListener('updatefound', () => {
+                    const nw = reg.installing;
+                    nw.addEventListener('statechange', () => {
+                        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                            document.getElementById('updateBanner').style.display = 'block';
+                            window._newWorker = nw;
+                        }
                     });
-                })
-                .catch((err) => console.error('❌ فشل تسجيل Service Worker:', err));
+                });
+            });
+
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (refreshing) return;
+                refreshing = true;
+                location.reload();
+            });
+        }
+
+        function applyUpdate() {
+            if (window._newWorker) window._newWorker.postMessage({ type: 'SKIP_WAITING' });
+            else location.reload();
+        }
+
+        // زر التثبيت (Android / Chrome)
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installArea').style.display = 'block';
         });
 
-        // إعادة تحميل الصفحة بعد تفعيل الإصدار الجديد
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (refreshing) return;
-            refreshing = true;
-            window.location.reload();
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            document.getElementById('installArea').style.display = 'none';
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
         });
-    }
 
-    function applyUpdate() {
-        if (window._newWorker) {
-            window._newWorker.postMessage({ type: 'SKIP_WAITING' });
-        } else {
-            window.location.reload();
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('installArea').style.display = 'none';
+        });
+
+        // iOS Safari
+        const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        const isStandalone = ('standalone' in navigator) && navigator.standalone;
+        if (isIos && !isStandalone) {
+            const area = document.getElementById('installArea');
+            const btn = document.getElementById('installBtn');
+            area.style.display = 'block';
+            btn.innerHTML = '📲 اضغط ⬆️ ثم "Add to Home Screen"';
+            btn.style.fontSize = '12px';
+            btn.onclick = () => area.style.display = 'none';
         }
-    }
-
-    /* ===========================================================
-       2) لودر الـ iframe
-       =========================================================== */
-    const iframe = document.getElementById('appIframe');
-    const loader = document.getElementById('globalLoader');
-
-    iframe.onload = () => { loader.style.display = 'none'; };
-
-    setTimeout(() => {
-        if (loader.style.display !== 'none') {
-            loader.innerHTML = '<p class="text-danger">تأخر التحميل، يرجى التحقق من الاتصال بالإنترنت</p>';
-        }
-    }, 15000);
-
-    /* ===========================================================
-       3) زر تثبيت التطبيق (Android / Chrome / Edge)
-       =========================================================== */
-    let deferredPrompt;
-    const installArea = document.getElementById('installArea');
-    const installBtn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installArea.style.display = 'block';
-    });
-
-    installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        installArea.style.display = 'none';
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log('نتيجة التثبيت:', outcome);
-        deferredPrompt = null;
-    });
-
-    // إخفاء الزر بعد التثبيت
-    window.addEventListener('appinstalled', () => {
-        installArea.style.display = 'none';
-        deferredPrompt = null;
-    });
-
-    /* ===========================================================
-       4) دعم iOS Safari (مش بيدعم beforeinstallprompt)
-       =========================================================== */
-    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isInStandaloneMode = ('standalone' in navigator) && navigator.standalone;
-
-    if (isIos && !isInStandaloneMode) {
-        installArea.style.display = 'block';
-        installBtn.innerHTML = '📲 للتثبيت: اضغط زر المشاركة ثم "Add to Home Screen"';
-        installBtn.style.fontSize = '13px';
-        installBtn.onclick = () => installArea.style.display = 'none';
-    }
-</script>
+    </script>
 
 </body>
 </html>
